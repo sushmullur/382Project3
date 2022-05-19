@@ -12,9 +12,11 @@ expression = "(implies (and p q r) (or p q r))"
 
 # main- currently used for testing
 def main():
-    identify_variables(expression)
-    print("List of variables: " + str(variables))
-    output_table()
+    temp =identify_variables(expression)
+    print("List of variables: ")
+    for i in temp:
+        print(i," ")
+    output_table(temp)
 
 
 # Checks through the truth data iteratively and returns the validity of the statement.
@@ -37,21 +39,36 @@ def identify_variables(formula):
         space_removed[i] = space_removed[i].replace("(", "")
         space_removed[i] = space_removed[i].replace(")", "")
 
-    global variables
+    variables =  set()
     # Adds all identified and unique variables to the variables list
     for i in range(len(space_removed)):
         if len(space_removed[i]) == 1 and (space_removed[i] not in variables):
-            variables.append(space_removed[i])
+            variables.add(space_removed[i])
+    print(variables)
+    return variables
 
 
-def output_table():
-    table_string = "Truth Table:\n"
-    for variable in variables:
-        table_string += variable + "\t"
+def output_table(input):
+    input = list(input)
+    ret = []
+    curr = {}
+    def helper(input, position, curr):
+        if position >= len(input):
+            ret.append(curr)
+            return
+        temp = curr.copy()
+        temp2 = curr.copy()
 
-    table_string += expression
-    # TODO: Print out all T and F permutations
-    print(table_string)
+        temp[input[position]] = True
+        helper(input, position + 1, temp)
+
+        temp2[input[position]] = False
+        helper(input, position + 1, temp2)
+        return
+
+    helper(input, 0, curr)
+    print(ret)
+    return ret
 
 
 # valid tautologies for test cases
