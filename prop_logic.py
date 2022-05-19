@@ -32,11 +32,11 @@ def check_tautology(input, statment):
         ##put evreything together
 
         #return it
-        
+
     ret = False
     for i in input:
         temp = statment.copy()
-        helper(input, temp)
+        helper(i, temp)
 
 
     return ret
