@@ -7,7 +7,10 @@ table = [[]]
 # List to keep track of all the variables within formula
 variables = []
 
-expression = "(implies (and p q r) (or p q r))"
+#expression = "(implies (and p q r) (or p q r))"
+#expression = "(implies (and p q r  (or s t)) (or (and  p q r s) (and p q r t)))"
+expression = "(iff (and p q r c)  (or p r q))"
+#expression = "(and(a (neg a)))"
 
 
 # main- currently used for testing
@@ -17,8 +20,17 @@ def main():
     for i in temp:
         print(i," ")
     temp2 =output_table(temp)
-    print(temp2)
-    check_tautology(temp2,expression)
+    #print(temp2)
+    temp3=check_tautology(temp2,expression)
+    output = False
+    for i in range(len(temp3)):
+        print(temp2[i]," ",temp3[i])
+        if temp3[i]==True:
+            output = True
+    if output:
+        print("this statment is valid")
+    else:
+        print("this statment is not valid")
 
 
 # Checks through the truth data iteratively and returns the validity of the statement.
@@ -124,7 +136,7 @@ def output_table(input):
         return
 
     helper(input, 0, curr)
-    print(ret)
+    #print(ret)
     return ret
 
 
