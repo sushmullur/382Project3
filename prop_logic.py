@@ -1,6 +1,6 @@
 # Authors: Ethan Yang and Sush Mullur
 # Created 5/14/2022
-
+import regex
 # 2d List for keeping track of truth table values.
 table = [[]]
 
@@ -21,12 +21,25 @@ def main():
 
 # Checks through the truth data iteratively and returns the validity of the statement.
 # Complexity: O(n^2)
-def check_tautology():
-    for i in range(len(table)):
-        for j in range(len(table[i])):
-            if not table[i][j]:
-                return False
-    return True
+def check_tautology(input, statment):
+    def helper(input,statement):
+        statement = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", statement)]
+        for curr in statment:
+            if curr[0]=="(":
+                curr =helper(input, curr)
+            elif len(curr)==1:
+                curr = input[curr]
+        ##put evreything together
+
+        #return it
+        
+    ret = False
+    for i in input:
+        temp = statment.copy()
+        helper(input, temp)
+
+
+    return ret
 
 
 # Takes a formula as a string and places all the variables in the variables list
