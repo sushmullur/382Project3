@@ -16,7 +16,8 @@ def main():
     print("List of variables: ")
     for i in temp:
         print(i," ")
-    output_table(temp)
+    temp2 =output_table(temp)
+    check_tautology(temp2,expression)
 
 
 # Checks through the truth data iteratively and returns the validity of the statement.
@@ -24,9 +25,19 @@ def main():
 def implies(input):
     return input[0]==input[1]
 def iff(input):
-    for i in range(2,len(input)):
-        if input[i]!=input[0]:
-            return False
+    prev = -1
+    for i in range(len(input)):
+        if input[i] == True or input[i]==False:
+            if prev!=-1:
+                if input[i]!=input[prev]:
+                    return False
+                prev +=1
+            else:
+                prev = i
+    return True
+def neg(input):
+    if input[1]==True:
+        return False
     return True
 
 
