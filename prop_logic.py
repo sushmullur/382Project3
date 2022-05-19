@@ -21,6 +21,26 @@ def main():
 
 # Checks through the truth data iteratively and returns the validity of the statement.
 # Complexity: O(n^2)
+def implies(input):
+    return input[0]==input[1]
+def iff(input):
+    for i in range(2,len(input)):
+        if input[i]!=input[0]:
+            return False
+    return True
+
+
+def andStatment(input):
+    for i in input:
+        if i == False:
+            return False
+    return True
+
+def orStatment(input):
+    for i in input:
+        if i == True:
+            return True
+    return False
 def check_tautology(input, statment):
     def helper(input,statement):
         statement = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", statement)]
@@ -29,6 +49,14 @@ def check_tautology(input, statment):
                 curr =helper(input, curr)
             elif len(curr)==1:
                 curr = input[curr]
+        if statement[0]=="and":
+            return andStatment(statment)
+        if statment[0]=="or":
+            return orStatment(statment)
+        if statment[0]=="implies":
+            return implies(statment)
+        if statment[0]=="iff":
+            return iff(statment)
         ##put evreything together
 
         #return it
