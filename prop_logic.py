@@ -17,13 +17,14 @@ def main():
     for i in temp:
         print(i," ")
     temp2 =output_table(temp)
+    print(temp2)
     check_tautology(temp2,expression)
 
 
 # Checks through the truth data iteratively and returns the validity of the statement.
 # Complexity: O(n^2)
 def implies(input):
-    return input[0]==input[1]
+    return input[1]==input[2]
 def iff(input):
     prev = -1
     for i in range(len(input)):
@@ -52,30 +53,34 @@ def orStatment(input):
         if i == True:
             return True
     return False
-def check_tautology(input, statment):
+def check_tautology(input, statement):
     def helper(input,statement):
         statement = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", statement)]
-        for curr in statment:
+        count =0
+        for curr in statement:
             if curr[0]=="(":
-                curr =helper(input, curr)
+                statement[count] =helper(input, curr[1:-1])
             elif len(curr)==1:
-                curr = input[curr]
+                statement[count] = input[curr]
+            count+=1
         if statement[0]=="and":
-            return andStatment(statment)
-        if statment[0]=="or":
-            return orStatment(statment)
-        if statment[0]=="implies":
-            return implies(statment)
-        if statment[0]=="iff":
-            return iff(statment)
+            return andStatment(statement)
+        if statement[0]=="or":
+            return orStatment(statement)
+        if statement[0]=="implies":
+            return implies(statement)
+        if statement[0]=="iff":
+            return iff(statement)
+        else:
+            return statement[0]
         ##put evreything together
 
         #return it
 
-    ret = False
+    ret = []
     for i in input:
-        temp = statment.copy()
-        helper(i, temp)
+        temp = statement
+        ret.append(helper(i, temp))
 
 
     return ret
