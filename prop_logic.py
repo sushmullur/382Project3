@@ -54,7 +54,9 @@ def main():
 # Checks through the truth data iteratively and returns the validity of the statement.
 # Complexity: O(n^2)
 def implies(input):
-    return input[1]==input[2]
+    if input[1]==True:
+        return input[2] ==True
+    return True
 def iff(input):
     prev = -1
     for i in range(len(input)):
