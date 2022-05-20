@@ -1,6 +1,8 @@
 # Authors: Ethan Yang and Sush Mullur
 # Created 5/14/2022
 import regex
+import tabulate
+#import pandas as pd
 # 2d List for keeping track of truth table values.
 table = [[]]
 
@@ -16,18 +18,34 @@ expression = "(iff (and p q r c)  (or p r q))"
 # main- currently used for testing
 def main():
     temp =identify_variables(expression)
+    temp = list(temp)
+    vars =""
     print("List of variables: ")
     for i in temp:
-        print(i," ")
+        vars+=str(i)
+        vars+=" "
+    print(vars)
     temp2 =output_table(temp)
     #print(temp2)
     temp3=check_tautology(temp2,expression)
     output = False
+    Taut = True
     for i in range(len(temp3)):
-        print(temp2[i]," ",temp3[i])
+        temp2[i]["output"]= temp3[i]
         if temp3[i]==True:
             output = True
+        if temp3[i]==False:
+            Taut = False
+        #print(temp2[i])
+    header = temp2[0].keys()
+    rows = [x.values() for x in temp2]
+    print(tabulate.tabulate(rows, header))
+    #(tabulate(rows, header))
     if output:
+        print("this statment is satisfiable")
+    else:
+        print("this statment is not satisfiable")
+    if Taut:
         print("this statment is valid")
     else:
         print("this statment is not valid")
