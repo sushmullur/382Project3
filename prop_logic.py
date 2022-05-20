@@ -37,9 +37,11 @@ def main():
         if temp3[i]==False:
             Taut = False
         #print(temp2[i])
+
     header = temp2[0].keys()
     rows = [x.values() for x in temp2]
     print(tabulate.tabulate(rows, header))
+
     #(tabulate(rows, header))
     if output:
         print("this statment is satisfiable")
