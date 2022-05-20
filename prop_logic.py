@@ -11,8 +11,8 @@ variables = []
 
 #expression = "(implies (and p q r) (or p q r))"
 #expression = "(implies (and p q r  (or s t)) (or (and  p q r s) (and p q r t)))"
-expression = "(iff (and p q r c)  (or p r q))"
-#expression = "(and(a (neg a)))"
+expression = "(iff (and p q r)  (and p r q))"
+#expression = "(and a (neg a))"
 
 
 # main- currently used for testing
@@ -24,7 +24,7 @@ def main():
     for i in temp:
         vars+=str(i)
         vars+=" "
-    print(vars)
+    #print(vars)
     temp2 =output_table(temp)
     #print(temp2)
     temp3=check_tautology(temp2,expression)
@@ -58,16 +58,7 @@ def implies(input):
         return input[2] ==True
     return True
 def iff(input):
-    prev = -1
-    for i in range(len(input)):
-        if input[i] == True or input[i]==False:
-            if prev!=-1:
-                if input[i]!=input[prev]:
-                    return False
-                prev +=1
-            else:
-                prev = i
-    return True
+    return input[1]==input[2]
 def neg(input):
     if input[1]==True:
         return False
@@ -103,6 +94,8 @@ def check_tautology(input, statement):
             return implies(statement)
         if statement[0]=="iff":
             return iff(statement)
+        if statement[0]=="neg":
+            return neg(statement)
         else:
             return statement[0]
         ##put evreything together
