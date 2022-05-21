@@ -9,8 +9,8 @@ table = [[]]
 # List to keep track of all the variables within formula
 variables = []
 
-#expression = "w(implies (and p q r) (or p q r))"
-expression = "(implies (and p q r  (or s t)) (or (and  p q r s) (and p q r t)))"
+expression = "(implies (and p q r) (or p q r))"
+#expression = "(implies (and p q r  (or s t)) (or (and  p q r s) (and p q r t)))"
 #expression = "(and a (neg a))"
 
 
@@ -36,7 +36,7 @@ def main():
         if temp3[i]==False:
             Taut = False
         #print(temp2[i])
-    a="(neg (and p q  (neg r)))"
+    a="(implies p q)"
     tester(a)
 
     header = temp2[0].keys()
@@ -61,16 +61,19 @@ def convertImplies(input):
     if(input[0])=="implies":
         input[0]="or"
         if input[1][0]=="(":
-            input[1] = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input[1][1:-1])]
-            input[1]=convertImplies(input[1])
+            #input[1] = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input[1][1:-1])]
+            input[1]=convertImplies(helperSplitter(input[1][1:-1]))
         if input[1][0]=="(":
-            input[1] = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input[1][1:-1])]
+            #input[1] = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input[1][1:-1])]
+            input[1] = helperSplitter(input[1][1:-1])
         else:
-            input[1] = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input[1])]
+            #input[1] = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input[1])]
+            input[1] = helperSplitter(input[1])
         input[1]= convertNeg(input[1])
         if input[2][0]=="(":
-            input[2] = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input[2][1:-1])]
-            input[2]=convertImplies(input[2])
+           # input[2] = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input[2][1:-1])]
+            #input[2]=convertImplies(input[2])
+            input[2] = convertImplies(helperSplitter(input[2][1:-1]))
     return convertString(input)
 
 def convertNeg(input):
@@ -90,7 +93,8 @@ def convertNeg(input):
         return "(or (and"+First+" "+notSecond+")(and"+Second+" "+notFirst+"))"
     for i in range(1, len(input)):
         if len(input[i])!=1:
-            input[i] = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input[i][1:-1])]
+            #input[i] = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input[i][1:-1])]
+            input[i]= helperSplitter(input[i][1:-1])
         input[i]=convertNeg(input[i])
     return convertString(input)
 def convertString(input):
@@ -101,7 +105,8 @@ def convertString(input):
     ret = ret[:-1]
     return ret + ")"
 def tester(input):
-    input = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input[1:-1])]
+    #input = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input[1:-1])]
+    input =helperSplitter(input[1:-1])
     count =0
     for curr in input:
         if curr[0]=="(":
@@ -110,8 +115,9 @@ def tester(input):
     if input[0] == "implies":
         input=convertImplies(input)
     elif input[0]=="neg" and len(input[1])!=1:
-        input = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input[1][1:-1])]
-        input =convertNeg(input)
+        #input = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input[1][1:-1])]
+        #input = helperSplitter(input[1][1:-1])
+        input =convertNeg(helperSplitter(input[1][1:-1]))
     #for i in range(len(input)):
     else:
         return convertString(input)
@@ -129,8 +135,6 @@ def neg(input):
     if input[1]==True:
         return False
     return True
-
-
 def andStatment(input):
     for i in input:
         if i == False:
@@ -142,9 +146,11 @@ def orStatment(input):
         if i == True:
             return True
     return False
+def helperSplitter(input):
+    return [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input)]
 def check_tautology(input, statement):
     def helper(input,statement):
-        statement = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", statement)]
+        statement = helperSplitter((statement))
         count =0
         for curr in statement:
             if curr[0]=="(":
