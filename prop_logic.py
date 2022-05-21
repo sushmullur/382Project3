@@ -9,7 +9,7 @@ table = [[]]
 # List to keep track of all the variables within formula
 variables = []
 
-#expression = "(implies (and p q r) (or p q r))"
+#expression = "w(implies (and p q r) (or p q r))"
 #expression = "(implies (and p q r  (or s t)) (or (and  p q r s) (and p q r t)))"
 expression = "(iff (and p q r)  (and p r q))"
 #expression = "(and a (neg a))"
@@ -37,6 +37,9 @@ def main():
         if temp3[i]==False:
             Taut = False
         #print(temp2[i])
+    #a="implies p (and p a)"
+    #a=[match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", a)]
+    #a =convertImplies(a)
 
     header = temp2[0].keys()
     rows = [x.values() for x in temp2]
@@ -55,6 +58,28 @@ def main():
 
 # Checks through the truth data iteratively and returns the validity of the statement.
 # Complexity: O(n^2)
+
+def convertImplies(input):
+    if(input[0])=="implies":
+        input[0]="or"
+        if input[1][0]=="(":
+            input[1] = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input[1][1:-1])]
+            input[1]=convertImplies(input[1])
+        input[1] = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input[1])]
+        input[1]= convertNeg(input[1])
+        if input[2][0]=="(":
+            input[2] = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input[2][1:-1])]
+            input[2]=convertImplies(input[2])
+    ret ="("
+    for curr in input:
+        ret= ret+curr
+        ret = ret+" "
+    ret = ret[:-1]
+    return ret+")"
+
+def convertNeg(input):
+    return "(neg "+input[0]+")"
+
 def implies(input):
     if input[1]==True:
         return input[2] ==True
