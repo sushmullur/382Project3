@@ -37,9 +37,8 @@ def main():
         if temp3[i]==False:
             Taut = False
         #print(temp2[i])
-    #a="implies p (and p a)"
-    #a=[match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", a)]
-    #a =convertImplies(a)
+    a="(implies (neg p) (and p a))"
+    tester(a)
 
     header = temp2[0].keys()
     rows = [x.values() for x in temp2]
@@ -65,20 +64,55 @@ def convertImplies(input):
         if input[1][0]=="(":
             input[1] = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input[1][1:-1])]
             input[1]=convertImplies(input[1])
-        input[1] = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input[1])]
+        if input[1][0]=="(":
+            input[1] = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input[1][1:-1])]
+        else:
+            input[1] = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input[1])]
         input[1]= convertNeg(input[1])
         if input[2][0]=="(":
             input[2] = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input[2][1:-1])]
             input[2]=convertImplies(input[2])
-    ret ="("
-    for curr in input:
-        ret= ret+curr
-        ret = ret+" "
-    ret = ret[:-1]
-    return ret+")"
+    return convertString(input)
 
 def convertNeg(input):
-    return "(neg "+input[0]+")"
+    if input[0]=="neg":
+        return input[1]
+    if len(input[0])==1:
+        return "(neg "+input[0]+")"
+    if input[0]=="and":
+        input[0]=="or"
+    if input[0]=="or":
+        input[0]=="and"
+    if input[0]=="iff":
+        First = input[1]
+        Second = input[2]
+        notFirst = convertNeg(input[1])
+        notSecond = convertNeg(input[2])
+        return "(or (and"+First+" "+notSecond+")(and"+Second+" "+notFirst+"))"
+    for i in range(1, len(input)):
+        input[i] = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input[i][1:-1])]
+        convertNeg(input[i])
+    return convertString(input)
+def convertString(input):
+    ret = "("
+    for curr in input:
+        ret = ret + curr
+        ret = ret + " "
+    ret = ret[:-1]
+    return ret + ")"
+def tester(input):
+    input = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input[1:-1])]
+    for curr in input:
+        if curr[0]=="(":
+            tester(curr)
+    if input[0] == "implies":
+        input=convertImplies(input)
+    elif input[0]=="neg" and len(input[1])!=1:
+        input =convertNeg(input[1:])
+    #for i in range(len(input)):
+    return convertString(input)
+
+
 
 def implies(input):
     if input[1]==True:
