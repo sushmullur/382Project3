@@ -91,6 +91,8 @@ def convertNeg(input):
         notFirst = convertNeg(input[1])
         notSecond = convertNeg(input[2])
         return "(or (and"+First+" "+notSecond+")(and"+Second+" "+notFirst+"))"
+    elif input[0]=="implies":
+        return"(and ("+input[1]+") ("+convertNeg(input[2])+"))"
     for i in range(1, len(input)):
         if len(input[i])!=1:
             #input[i] = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input[i][1:-1])]
