@@ -3,7 +3,6 @@
 import regex
 import tabulate
 
-expression = "(implies (and p q r) (or p q r))"
 
 
 # expression = "(implies (and p q r  (or s t)) (or (and  p q r s) (and p q r t)))"
@@ -12,16 +11,14 @@ expression = "(implies (and p q r) (or p q r))"
 
 # main- currently used for testing
 def main():
+    expression = file_read("test.txt")
     temp = identify_variables(expression)
     temp = list(temp)
     vars = ""
-    print("List of variables: ")
     for i in temp:
         vars += str(i)
         vars += " "
-    # print(vars)
     temp2 = output_table(temp)
-    # print(temp2)
     temp3 = check_tautology(temp2, expression)
     output = False
     Taut = True
@@ -49,6 +46,10 @@ def main():
     else:
         print("this statement is not valid")
 
+
+def file_read(filename):
+    file = open(filename, "r")
+    return file.read()
 
 # --------------------------------------------------------------------------------------------------------------------
 # Question 1
