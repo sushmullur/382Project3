@@ -255,7 +255,8 @@ def convertToCNF(input):
     else:
         return convertString(input)
     return input
-
+# --------------------------------------------------------------------------------------------------------------------
+# Question 3
 
 if __name__ == "__main__":
     main()

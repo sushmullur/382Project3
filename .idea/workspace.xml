@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="03965ff7-221c-435d-90a4-dcf9aafb0519" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/prop_logic.py" beforeDir="false" afterPath="$PROJECT_DIR$/prop_logic.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -66,7 +65,7 @@
       <updated>1652582704460</updated>
       <workItem from="1652582708359" duration="27000" />
       <workItem from="1653196558650" duration="1602000" />
-      <workItem from="1653420317167" duration="219000" />
+      <workItem from="1653420317167" duration="251000" />
     </task>
     <servers />
   </component>
