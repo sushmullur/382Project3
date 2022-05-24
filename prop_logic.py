@@ -15,7 +15,7 @@ def main():
     finalOutput(expression)
     a = "(iff (and (neg p) q) r)"
     print(convertToCNF(a))
-    Resoloution("(or (and (not q) (not p)) (and q (not r)) r p)")
+    Resoloution("(or p q (or r s))")
 
 def file_read(filename):
     file = open(filename, "r")
@@ -258,6 +258,12 @@ def convertToCNF(input):
     return input
 # --------------------------------------------------------------------------------------------------------------------
 # Question 3
+def convertNegRes(input):
+    if input[0] == "neg":
+        return input[1]
+    if len(input[0]) == 1:
+        return ["neg", input[0]]
+
 def Resoloution(input):
     input = convertToCNF(input)
     temp =getVar(input)
@@ -267,12 +273,25 @@ def Resoloution(input):
         if len(temp[i])==1:
             res.append(temp[i])
         elif temp[i]== "neg" or temp[i]=="not":
-            negation = "(neg "+temp[i+1]+")"
+            negation =["neg",temp[i+1]]
+            #negation = "neg "+temp[i+1]
             res.append(negation)
             i=i+1
         i = i + 1
     terms = res.copy()
-    return res
+    res2=res.copy()
+    for i in res2:
+        negated = convertNegRes(i)
+        for i2 in terms:
+            if i2 ==negated:
+                if i in res:
+                    res.remove(i)
+                    res.remove(i2)
+                break
+    if len(res)==0:
+        print("resoloution eneded with all elements gone")
+    else:
+        print("terms still left after resolotion")
 def getVar(input):
     input = input.replace('(','').replace(')','')
     return input.split();
