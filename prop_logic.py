@@ -12,14 +12,25 @@ import tabulate
 # main- currently used for testing
 def main():
     expression = file_read("test.txt")
-    temp = identify_variables(expression)
+    finalOutput(expression)
+    a = "(iff (and (neg p) q) r)"
+    print(convertToCNF(a))
+
+def file_read(filename):
+    file = open(filename, "r")
+    return file.read()
+
+# --------------------------------------------------------------------------------------------------------------------
+# Question 1
+def finalOutput(input):
+    temp = identify_variables(input)
     temp = list(temp)
     vars = ""
     for i in temp:
         vars += str(i)
         vars += " "
     temp2 = output_table(temp)
-    temp3 = check_tautology(temp2, expression)
+    temp3 = check_tautology(temp2, input)
     output = False
     Taut = True
     for i in range(len(temp3)):
@@ -28,15 +39,9 @@ def main():
             output = True
         if temp3[i] == False:
             Taut = False
-        # print(temp2[i])
-    a = "(iff (and (neg p) q) r)"
-    print(convertToCNF(a))
-
     header = temp2[0].keys()
     rows = [x.values() for x in temp2]
     print(tabulate.tabulate(rows, header))
-
-    # (tabulate(rows, header))
     if output:
         print("this statement is satisfiable")
     else:
@@ -45,14 +50,6 @@ def main():
         print("this statement is valid")
     else:
         print("this statement is not valid")
-
-
-def file_read(filename):
-    file = open(filename, "r")
-    return file.read()
-
-# --------------------------------------------------------------------------------------------------------------------
-# Question 1
 
 def implies(input):
     if input[1] == True:
