@@ -30,19 +30,22 @@ def finalOutput(input):
     for i in temp:
         vars += str(i)
         vars += " "
-    temp2 = output_table(temp)
-    temp3 = check_tautology(temp2, input)
+    table = output_table(temp)
+    results = check_tautology(table, input)
     output = False
     Taut = True
-    for i in range(len(temp3)):
-        temp2[i]["output"] = temp3[i]
-        if temp3[i] == True:
+
+    for i in range(len(results)):
+        table[i]["output"] = results[i]
+        if results[i] == True:
             output = True
-        if temp3[i] == False:
+        if results[i] == False:
             Taut = False
-    header = temp2[0].keys()
-    rows = [x.values() for x in temp2]
+
+    header = table[0].keys()
+    rows = [x.values() for x in table]
     print(tabulate.tabulate(rows, header))
+    
     if output:
         print("this statement is satisfiable")
     else:
@@ -145,14 +148,14 @@ def output_table(input):
         if position >= len(input):
             ret.append(curr)
             return
-        temp = curr.copy()
-        temp2 = curr.copy()
+        branch = curr.copy()
+        branch2 = curr.copy()
 
-        temp[input[position]] = True
-        helper(input, position + 1, temp)
+        branch[input[position]] = True
+        helper(input, position + 1, branch)
 
-        temp2[input[position]] = False
-        helper(input, position + 1, temp2)
+        branch2[input[position]] = False
+        helper(input, position + 1, branch2)
         return
 
     helper(input, 0, curr)
