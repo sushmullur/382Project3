@@ -1,1 +1,34 @@
-(iff (and p q r)  (and p r q))
+# Test cases
+
+# 1- Tautology checker
+
+# (and p (neg p))
+# Expect- not valid and not satisfiable
+
+#(implies (and p q) (or (neg q) (neg p)))
+# Expect- not valid and satisfiable
+
+#(implies (and p q) (or q p))
+# Expect- valid and satisfiable
+
+# Test infinite variables
+# (implies (and p q) (or (neg q) (neg p)) (or s t) (or u v) (or x y) (or z a))
+
+# 2- Convert to CNF
+
+# Test iff
+#(iff (and p q) (or p q))
+
+# Test implies
+# (implies p (neg q))
+
+# Test 4 variables
+(or (and p q r) (and r q s))
+
+
+# Assignment provided test cases
+
+# 1- Tautology checker expect valid and satisfiable
+# (implies (and p q r) (or p q r))
+# (iff (and p q r)  (and p r q))
+# (implies (and p q r  (or s t)) (or (and  p q r s) (and p q r t)))
