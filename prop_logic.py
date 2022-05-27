@@ -1,36 +1,42 @@
 # Authors: Ethan Yang and Sush Mullur
 # Created 5/14/2022
+# Last modified 5/27/2022
 import regex
 import tabulate
 
 
-
-# expression = "(implies (and p q r  (or s t)) (or (and  p q r s) (and p q r t)))"
-# expression = "(and a (neg a))"
-
-
-# main- currently used for testing
+# Main method. All the methods for the 3 questions are run here.
 def main():
+    # Expression is read from the file.
     expression = file_read("test.txt")
-    finalOutput(expression)
+    print_table(expression)
     a = expression
     print(convertToCNF(a))
-    Resoloution(a)
+    resolution(a)
 
+
+# This functions reads a file line by line and returns a given expression.
+# This function ignores comments in the test file.
 def file_read(filename):
     file = open(filename, "r")
-    return file.read()
+    ret_val = ""
+    for line in file.readlines():
+        if line[0] != '#':
+            ret_val += line
+    return ret_val.strip()
+
 
 # --------------------------------------------------------------------------------------------------------------------
 # Question 1
-def finalOutput(input):
+# Outputs the table for question 1. Also determines if the statement is satisfiable and/or valid.
+def print_table(input):
     temp = identify_variables(input)
     temp = list(temp)
     vars = ""
     for i in temp:
         vars += str(i)
         vars += " "
-    table = output_table(temp)
+    table = output_to_dict(temp)
     results = check_tautology(table, input)
     output = False
     Taut = True
@@ -42,10 +48,10 @@ def finalOutput(input):
         if results[i] == False:
             Taut = False
 
+    # Tabulate is used to format the truth table.
     header = table[0].keys()
     rows = [x.values() for x in table]
     print(tabulate.tabulate(rows, header))
-
     if output:
         print("this statement is satisfiable")
     else:
@@ -55,22 +61,27 @@ def finalOutput(input):
     else:
         print("this statement is not valid")
 
+
+# This function handles the case of implies between two values.
 def implies(input):
     if input[1] == True:
         return input[2] == True
     return True
 
 
+# This function handles the case of if and only if between two values.
 def iff(input):
     return input[1] == input[2]
 
 
+# This function handles negation of a value.
 def neg(input):
     if input[1] == True:
         return False
     return True
 
 
+# This function handles and between values.
 def andStatment(input):
     for i in input:
         if i == False:
@@ -78,6 +89,7 @@ def andStatment(input):
     return True
 
 
+# This function handles or between values.
 def orStatment(input):
     for i in input:
         if i == True:
@@ -85,10 +97,12 @@ def orStatment(input):
     return False
 
 
+# This helper function splits up an expression using the regex library.
 def helperSplitter(input):
     return [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input)]
 
 
+# This function performs the initial steps and calculations for checking tautology.
 def check_tautology(input, statement):
     def helper(input, statement):
         statement = helperSplitter((statement))
@@ -99,6 +113,8 @@ def check_tautology(input, statement):
             elif len(curr) == 1:
                 statement[count] = input[curr]
             count += 1
+
+        # Different cases and statements are handled.
         if statement[0] == "and":
             return andStatment(statement)
         if statement[0] == "or":
@@ -116,12 +132,10 @@ def check_tautology(input, statement):
     for i in input:
         temp = statement
         ret.append(helper(i, temp))
-
     return ret
 
 
 # Takes a formula as a string and places all the variables in the variables list
-# O(n) complexity
 def identify_variables(formula):
     # Creates a parsed list split by space
     space_removed = formula.split(" ")
@@ -139,55 +153,50 @@ def identify_variables(formula):
     return variables
 
 
-def output_table(input):
+# Outputs the truth table into a dictionary to create a 2d representation.
+def output_to_dict(input):
     input = list(input)
     ret = []
     curr = {}
-
+    # Helper method for recursion.
     def helper(input, position, curr):
+        # Base case
         if position >= len(input):
             ret.append(curr)
             return
         branch = curr.copy()
         branch2 = curr.copy()
-
         branch[input[position]] = True
         helper(input, position + 1, branch)
-
         branch2[input[position]] = False
         helper(input, position + 1, branch2)
         return
 
     helper(input, 0, curr)
-    # print(ret)
     return ret
 
 
 # --------------------------------------------------------------------------------------------------------------------
 # Question 2
 
+# Converts implies statements to CNF form.
 def convertImplies(input):
     if (input[0]) == "implies":
         input[0] = "or"
         if input[1][0] == "(":
-            # input[1] = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input[1][1:-1])]
             input[1] = convertImplies(helperSplitter(input[1][1:-1]))
         if input[1][0] == "(":
-            # input[1] = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input[1][1:-1])]
             input[1] = helperSplitter(input[1][1:-1])
         else:
-            # input[1] = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input[1])]
             input[1] = helperSplitter(input[1])
         input[1] = convertNeg(input[1])
         if input[2][0] == "(":
-            # input[2] = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input[2][1:-1])]
-            # input[2]=convertImplies(input[2])
             input[2] = convertImplies(helperSplitter(input[2][1:-1]))
     return convertString(input)
 
 
+# Converts iff statements to CNF form.
 def convertIff(input):
-    # p iff q becomes  (and (or (neg p) q) (or p (neg q)))
     first = input[1]
     second = input[2]
     if input[1][0] == "(":
@@ -203,7 +212,7 @@ def convertIff(input):
     return "(and (or " + first + " " + notSecond + ") (or " + second + " " + notFirst + "))"
 
 
-
+# Handles converting not statements and expressions to CNF form.
 def convertNeg(input):
     if input[0] == "neg":
         return input[1]
@@ -214,22 +223,14 @@ def convertNeg(input):
     elif input[0] == "or":
         input[0] = "and"
 
-    # elif input[0] == "iff":
-    #    First = input[1]
-    #    Second = input[2]
-    #    notFirst = convertNeg(input[1])
-    #    notSecond = convertNeg(input[2])
-    #    return "(or (and" + First + " " + notSecond + ")(and" + Second + " " + notFirst + "))"
-    # elif input[0] == "implies":
-    #    return "(and (" + input[1] + ") (" + convertNeg(input[2]) + "))"
     for i in range(1, len(input)):
         if len(input[i]) != 1:
-            # input[i] = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input[i][1:-1])]
             input[i] = helperSplitter(input[i][1:-1])
         input[i] = convertNeg(input[i])
     return convertString(input)
 
 
+# This function is used in converting the list to a string that can be output.
 def convertString(input):
     ret = "("
     for curr in input:
@@ -239,6 +240,7 @@ def convertString(input):
     return ret + ")"
 
 
+# Converts a given input to CNF
 def convertToCNF(input):
     # input = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input[1:-1])]
     input = helperSplitter(input[1:-1])
@@ -303,7 +305,7 @@ def convertNegProp(input):
     return input
 
 
-def Resoloution(input):
+def resolution(input):
     input2 = convertNegProp(input)
     input2 = convertToCNF(input2)
     #input = convertAnd(input)
@@ -343,12 +345,21 @@ def Resoloution(input):
                 break
 
     if len(terms)==0:
-        print("resoloution eneded with all elements gone")
+        print("Resolution ended with all elements gone")
     else:
         print("terms still left after resolotion")
 def getVar(input):
     input = input.replace('(','').replace(')','')
-    return input.split();
+    return input.split()
+
+def distributivity(expression):
+    # (and (or p q) (or r s)) input
+    # expect (or (and p r) (and p s) (and q r) (and q s)
+    # isolate "binomials"
+    # multiply them
+    temp = helperSplitter(expression)
+    print(temp)
 
 if __name__ == "__main__":
     main()
+    distributivity("(and (or p q) (or r s))")
