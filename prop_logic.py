@@ -3,7 +3,6 @@
 import regex
 import tabulate
 
-expression = "(implies (and p q r) (or p q r))"
 
 
 # expression = "(implies (and p q r  (or s t)) (or (and  p q r s) (and p q r t)))"
@@ -12,34 +11,41 @@ expression = "(implies (and p q r) (or p q r))"
 
 # main- currently used for testing
 def main():
-    temp = identify_variables(expression)
+    expression = file_read("test.txt")
+    finalOutput(expression)
+    a = expression
+    print(convertToCNF(a))
+    Resoloution(a)
+
+def file_read(filename):
+    file = open(filename, "r")
+    return file.read()
+
+# --------------------------------------------------------------------------------------------------------------------
+# Question 1
+def finalOutput(input):
+    temp = identify_variables(input)
     temp = list(temp)
     vars = ""
-    print("List of variables: ")
     for i in temp:
         vars += str(i)
         vars += " "
-    # print(vars)
-    temp2 = output_table(temp)
-    # print(temp2)
-    temp3 = check_tautology(temp2, expression)
+    table = output_table(temp)
+    results = check_tautology(table, input)
     output = False
     Taut = True
-    for i in range(len(temp3)):
-        temp2[i]["output"] = temp3[i]
-        if temp3[i] == True:
-            output = True
-        if temp3[i] == False:
-            Taut = False
-        # print(temp2[i])
-    a = "(iff (and (neg p) q) r)"
-    print(convertToCNF(a))
 
-    header = temp2[0].keys()
-    rows = [x.values() for x in temp2]
+    for i in range(len(results)):
+        table[i]["output"] = results[i]
+        if results[i] == True:
+            output = True
+        if results[i] == False:
+            Taut = False
+
+    header = table[0].keys()
+    rows = [x.values() for x in table]
     print(tabulate.tabulate(rows, header))
 
-    # (tabulate(rows, header))
     if output:
         print("this statement is satisfiable")
     else:
@@ -48,10 +54,6 @@ def main():
         print("this statement is valid")
     else:
         print("this statement is not valid")
-
-
-# --------------------------------------------------------------------------------------------------------------------
-# Question 1
 
 def implies(input):
     if input[1] == True:
@@ -146,14 +148,14 @@ def output_table(input):
         if position >= len(input):
             ret.append(curr)
             return
-        temp = curr.copy()
-        temp2 = curr.copy()
+        branch = curr.copy()
+        branch2 = curr.copy()
 
-        temp[input[position]] = True
-        helper(input, position + 1, temp)
+        branch[input[position]] = True
+        helper(input, position + 1, branch)
 
-        temp2[input[position]] = False
-        helper(input, position + 1, temp2)
+        branch2[input[position]] = False
+        helper(input, position + 1, branch2)
         return
 
     helper(input, 0, curr)
@@ -257,7 +259,96 @@ def convertToCNF(input):
     else:
         return convertString(input)
     return input
+# --------------------------------------------------------------------------------------------------------------------
+# Question 3
+def convertNegRes(input):
+    if input[0] == "neg":
+        return input[1]
+    if len(input[0]) == 1:
+        return ["neg", input[0]]
+def convertNegProp(input):
+    if input[0]=="(":
+        input = helperSplitter(input[1:-1])
+    else:
+        input = helperSplitter(input)
+    if len(input)==1:
+        return"(neg "+input[0]+")"
+    if input[0] == "implies":
+        input[0] = "and"
+        input[1]= convertNegProp(input[1])
+    elif input[0] == "iff":
+        input ="(or (and" + input[1] + " " + convertNegProp(input[2]) + ")(and" + input[2] + " " + convertNegProp(input[1]) + "))"
+        return input
+    elif input[0] == "neg":
+        input = input[1]
+    elif input[0]=="and":
+        count =0
+        for i in input:
+            if i=="and":
+                input[count]="or"
+            else:
+                input[count]= convertNegProp(i)
+            count+=1
+    elif input[0]=="or":
+        count =0
+        for i in input:
+            if i=="or":
+                input[count]="and"
+            else:
+                input[count]= convertNegProp(i)
+            count+=1
+    # for i in range(len(input)):
+    if len(input)>1:
+        return convertString(input)
+    return input
 
+
+def Resoloution(input):
+    input2 = convertNegProp(input)
+    input2 = convertToCNF(input2)
+    #input = convertAnd(input)
+    input = convertToCNF(input)
+    temp =getVar(input)
+    temp2 = getVar(input2)
+    res =[]
+    res2 =[]
+    i =0
+    while i < len(temp):
+        if len(temp[i])==1:
+            res.append(temp[i])
+        elif temp[i]== "neg" or temp[i]=="not":
+            negation =["neg",temp[i+1]]
+            #negation = "neg "+temp[i+1]
+            res.append(negation)
+            i=i+1
+        i = i + 1
+    i =0
+    while i < len(temp2):
+        if len(temp2[i]) == 1:
+            res2.append(temp2[i])
+        elif temp2[i] == "neg" or temp2[i] == "not":
+            negation = ["neg", temp2[i + 1]]
+            # negation = "neg "+temp[i+1]
+            res2.append(negation)
+            i = i + 1
+        i = i + 1
+
+    terms = res2.copy()
+    for i in res2:
+        negated = convertNegRes(i)
+        for i2 in res:
+            if i2 ==negated:
+                if i in terms:
+                    terms.remove(i)
+                break
+
+    if len(terms)==0:
+        print("resoloution eneded with all elements gone")
+    else:
+        print("terms still left after resolotion")
+def getVar(input):
+    input = input.replace('(','').replace(')','')
+    return input.split();
 
 if __name__ == "__main__":
     main()

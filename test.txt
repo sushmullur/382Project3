@@ -1,1 +1,1 @@
-(implies a (or b c))
+(iff (and p q r)  (and p r q))
