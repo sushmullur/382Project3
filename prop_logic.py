@@ -350,6 +350,8 @@ def convertNegRes(input):
         return input[1]
     if len(input[0]) == 1:
         return ["neg", input[0]]
+
+
 def convertNegProp(input):
     if input[0]=="(":
         input = helperSplitter(input[1:-1])
@@ -397,6 +399,8 @@ def resolution(input):
     res =[]
     res2 =[]
     i =0
+    distributivity(input)
+
     while i < len(temp):
         if len(temp[i])==1:
             res.append(temp[i])
@@ -407,6 +411,8 @@ def resolution(input):
             i=i+1
         i = i + 1
     i =0
+
+
     while i < len(temp2):
         if len(temp2[i]) == 1:
             res2.append(temp2[i])
@@ -439,8 +445,24 @@ def distributivity(expression):
     # expect (or (and p r) (and p s) (and q r) (and q s)
     # isolate "binomials"
     # multiply them
-    temp = helperSplitter(expression)
-    print(temp)
+    help_distribute(expression)
+    # temp = helperSplitter(expression[1:-1])
+    # print(temp)
+
+
+def help_distribute(expression):
+    if expression[0] == '(':
+        expression = expression[1:-1]
+    expression = helperSplitter(expression)
+    and_index = 9999999
+    for i in range(len(expression)):
+        if expression[i] == "and":
+            and_index = i
+            if expression[i] == "or" and and_index < i:
+            # perform distribution
+                pass
+
+
 
 if __name__ == "__main__":
     main()
