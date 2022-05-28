@@ -12,9 +12,11 @@ def main():
     print_table(expression)
     a = expression
     print(convertToCNF(a))
+    a= CNFConverter(a)
+    #a = distribute(a)
     resolution(a)
 
-
+#(and (and (or (neg p) q) (or (neg q) p)) (or (or p q) (or (neg p) (neg q))))
 # This functions reads a file line by line and returns a given expression.
 # This function ignores comments in the test file.
 def file_read(filename):
@@ -191,7 +193,7 @@ def convertImplies(input):
             input[1] = helperSplitter(input[1])
         input[1] = convertNeg(input[1])
         if input[2][0] == "(":
-            input[2] = convertImplies(helperSplitter(input[2][1:-1]))
+            input[2] = convertImplies(  helperSplitter(input[2][1:-1]))
     return convertString(input)
 
 
@@ -239,7 +241,12 @@ def convertString(input):
     ret = ret[:-1]
     return ret + ")"
 
-
+def CNFConverter(input):
+    ret = convertToCNF(input)
+    ret = distribute(ret)
+    temp, ret = noNest(ret, "abc")
+    ret = convertString(ret)
+    return ret
 # Converts a given input to CNF
 def convertToCNF(input):
     # input = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input[1:-1])]
@@ -259,8 +266,83 @@ def convertToCNF(input):
         input = convertNeg(helperSplitter(input[1][1:-1]))
     # for i in range(len(input)):
     else:
-        return convertString(input)
+        ret = convertString(input)
+        #ret = distribute(ret)
+        return ret
     return input
+def distribute(input):
+    input = helperSplitter(input[1:-1])
+    if input[0]=="neg":
+        return convertString(input)
+    count =0
+    for curr in input:
+        if curr[0] == "(":
+            input[count] = distribute(curr)
+            if input[count][1:4]==input[0]:
+                temp = helperSplitter(input[count][1:-1])
+                input=input+temp[1:]
+                input.remove(input[count])
+        count+=1
+    if input[0] == "and":
+        return convertString(input) #SUBJECT TO CHANGE
+
+    elif input[0] == "or":
+        hasAnd = None
+        theAnd =None
+        for curr in input:
+            if curr[0:4]=="(and":
+                theAnd=curr
+                hasAnd = helperSplitter(curr[1:-1])
+                hasAnd =hasAnd[1:]
+                break
+        if hasAnd==None:
+            return convertString(input)
+        ret = ["and"]
+        for curr in input:
+            if curr==theAnd or curr=="or" or curr=="and":
+                continue
+            else:
+                output = helper(curr, hasAnd)
+                ret = ret+output
+        ret = convertString(ret)
+        return ret
+
+def noNest(input, sign):
+    input = helperSplitter(input[1:-1])
+    if input[0] == "neg":
+        return False, (input)
+    tempS = input[0]
+    count = 0
+    while count< len(input):
+        if input[count][0] == "(":
+            result, temp = noNest(input[count], tempS)
+            if result:
+                input.remove(input[count])
+                input+=temp
+                count-=1
+            else:
+                input[count]=convertString(temp)
+        count+=1
+    if tempS==sign:
+        return True, input[1:]
+    else:
+        return False, input
+
+def helper(input, distributed):
+    ret =[]
+    if input[0]=="(":
+        input = helperSplitter(input[1:-1])
+        input = input[1:]
+    for i in input:
+        for i2 in distributed:
+            if i == convertNegProp(i2) or i2 ==convertNegProp(i):
+                continue
+            else:
+                ret.append("(or "+i+" "+i2+")")
+
+    return ret
+
+
 # --------------------------------------------------------------------------------------------------------------------
 # Question 3
 def convertNegRes(input):

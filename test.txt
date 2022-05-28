@@ -17,15 +17,15 @@
 # 2- Convert to CNF
 
 # Test iff
-#(iff (and p q) (or p q))
+(neg (implies p  (and q r)))
 
 # Test implies
 # (implies p (neg q))
 
 # Test 4 variables
-(or (and p q r) (and r q s))
+#(or (and p q r) (and r q s))
 
-
+#
 # Assignment provided test cases
 
 # 1- Tautology checker expect valid and satisfiable
