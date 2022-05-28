@@ -243,6 +243,8 @@ def convertString(input):
 
 def CNFConverter(input):
     ret = convertToCNF(input)
+    temp, ret = noNest(ret, "abc")
+    ret = convertString(ret)
     ret = distribute(ret)
     temp, ret = noNest(ret, "abc")
     ret = convertString(ret)
@@ -283,6 +285,7 @@ def distribute(input):
                 input=input+temp[1:]
                 input.remove(input[count])
         count+=1
+
     if input[0] == "and":
         return convertString(input) #SUBJECT TO CHANGE
 
@@ -298,12 +301,21 @@ def distribute(input):
         if hasAnd==None:
             return convertString(input)
         ret = ["and"]
+        track = set()
         for curr in input:
             if curr==theAnd or curr=="or" or curr=="and":
                 continue
             else:
                 output = helper(curr, hasAnd)
-                ret = ret+output
+                if output!=None:
+                    for i in output:
+                        if i not in track:
+                            ret.append(i)
+                            track.add(i)
+                else:
+                    if curr not in track:
+                        ret.append(curr)
+                        track.add(curr)
         ret = convertString(ret)
         return ret
 
@@ -332,13 +344,18 @@ def helper(input, distributed):
     ret =[]
     if input[0]=="(":
         input = helperSplitter(input[1:-1])
-        input = input[1:]
+        if input[0]=="and":
+            return None
+        if input[0]!="neg":
+            input = input[1:]
+        else:
+            temp= convertString(input)
+            temp2 = []
+            temp2.append(temp)
+            input=temp2
     for i in input:
         for i2 in distributed:
-            if i == convertNegProp(i2) or i2 ==convertNegProp(i):
-                continue
-            else:
-                ret.append("(or "+i+" "+i2+")")
+            ret.append("(or "+i+" "+i2+")")
 
     return ret
 
