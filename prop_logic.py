@@ -11,10 +11,9 @@ def main():
     expression = file_read("test.txt")
     print_table(expression)
     a = expression
-    print(convertToCNF(a))
+    print("CNF form is: ",CNFConverter(a))
     a= CNFConverter(a)
-    #a = distribute(a)
-    resolution(a)
+    resoloution(a)
 
 #(and (and (or (neg p) q) (or (neg q) p)) (or (or p q) (or (neg p) (neg q))))
 # This functions reads a file line by line and returns a given expression.
@@ -249,6 +248,7 @@ def CNFConverter(input):
     temp, ret = noNest(ret, "abc")
     ret = convertString(ret)
     return ret
+
 # Converts a given input to CNF
 def convertToCNF(input):
     # input = [match.group() for match in regex.finditer(r"(?:(\((?>[^()]+|(?1))*\))|\S)+", input[1:-1])]
@@ -272,52 +272,47 @@ def convertToCNF(input):
         #ret = distribute(ret)
         return ret
     return input
+
 def distribute(input):
-    input = helperSplitter(input[1:-1])
-    if input[0]=="neg":
-        return convertString(input)
+    if input[0]=="(":
+        input = input[1:-1]
+    input = helperSplitter(input)
+    andLine = -1
     count =0
-    for curr in input:
-        if curr[0] == "(":
-            input[count] = distribute(curr)
-            if input[count][1:4]==input[0]:
-                temp = helperSplitter(input[count][1:-1])
-                input=input+temp[1:]
-                input.remove(input[count])
+    for item in input:
+        if count == 0:
+            count+=1
+            continue
+        if item[0:4] == "(and":
+            andLine = count
+            break
         count+=1
 
-    if input[0] == "and":
-        return convertString(input) #SUBJECT TO CHANGE
+    if (andLine > 0):
+        divClause = input[andLine]
+        f = ['and']
+        divClause=divClause[5:-1]
+        divClause=helperSplitter(divClause)
+        for item in divClause:
+            a = input
+            a[andLine] = item
+            a=convertString(a)
+            f.append(a)
 
-    elif input[0] == "or":
-        hasAnd = None
-        theAnd =None
-        for curr in input:
-            if curr[0:4]=="(and":
-                theAnd=curr
-                hasAnd = helperSplitter(curr[1:-1])
-                hasAnd =hasAnd[1:]
-                break
-        if hasAnd==None:
-            return convertString(input)
-        ret = ["and"]
-        track = set()
-        for curr in input:
-            if curr==theAnd or curr=="or" or curr=="and":
+        output = ['and']
+        count =0
+        for item in f:
+            if count == 0:
+                count+=1
                 continue
-            else:
-                output = helper(curr, hasAnd)
-                if output!=None:
-                    for i in output:
-                        if i not in track:
-                            ret.append(i)
-                            track.add(i)
-                else:
-                    if curr not in track:
-                        ret.append(curr)
-                        track.add(curr)
-        ret = convertString(ret)
-        return ret
+            output.append(distribute(item))
+            count+=1
+
+        return convertString(output)
+
+    else:
+        # there is no "AND", can't move "OR" inside further
+        return convertString(input)
 
 def noNest(input, sign):
     input = helperSplitter(input[1:-1])
@@ -405,8 +400,82 @@ def convertNegProp(input):
         return convertString(input)
     return input
 
+def resoloution(input):
+    input =input[1:-1]
+    input =helperSplitter(input)
+    if input[0]=="or":
+        input = help_cancel(convertString(input))
+        if input=='':
+            print ("can resolve")
+            return
+        print("can't resolve")
+        return
+    input = input[1:]
+    ret = input
+    count =0
 
-def resolution(input):
+
+    count =0
+    for i in input:
+        if i[0]=="(":
+            check = helperSplitter(i[1:-1])
+            check = check[1:]
+        for i2 in input:
+            if i ==i2:
+                pass
+            else:
+               check =helperCheck(check, i2)
+        if check !=[]:
+            print("cant resolve")
+            return
+    print("can resolve")
+    return
+def helperCheck(input1, input2):
+    ret =[]
+    if input2[0]=="(":
+        input2=helperSplitter(input2[1:-1])
+        input2=input2[1:]
+    for i in input1:
+        flag = True
+        for i2 in input2:
+            if i == convertNegProp(i2):
+                flag = False
+        if flag:
+            ret.append(i)
+    return ret
+
+
+
+
+
+
+def help_cancel(input):
+    ret = helperSplitter(input[1:-1])
+    temp = helperSplitter(input[1:-1])
+    if temp[0]=="and":
+        return input
+    input = helperSplitter(input[1:-1])
+    ret = ret[1:]
+
+    for i in input:
+        negated = convertNegProp(i)
+        for i2 in temp:
+            if negated ==i2:
+                if i2 in ret:
+                    ret.remove(i2)
+                if i in ret:
+                    ret.remove(i)
+    if len(ret)==0:
+        return ""
+    return convertString(ret)
+    """
+    iCount =0
+    for i in temp:
+        for i2 in input:
+        iCount+=1
+   
+# def resolution(input):
+
     input2 = convertNegProp(input)
     input2 = convertToCNF(input2)
     #input = convertAnd(input)
@@ -451,8 +520,11 @@ def resolution(input):
 
     if len(terms)==0:
         print("Resolution ended with all elements gone")
+        return None
     else:
         print("terms still left after resolotion")
+        return "or"+terms
+        """
 def getVar(input):
     input = input.replace('(','').replace(')','')
     return input.split()
