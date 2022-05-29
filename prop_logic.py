@@ -296,9 +296,10 @@ def distribute(input):
             andLine = count
             break
         count+=1
-    if (andLine > 0):
+    if (andLine >0):
         divClause = input[andLine]
-        f = ['and']
+        temp = []
+        temp.append("and")
         divClause=divClause[5:-1]
         divClause=helperSplitter(divClause)
 
@@ -306,10 +307,10 @@ def distribute(input):
             a = input
             a[andLine] = item
             a=convertString(a)
-            f.append(a)
-        ret = ['and']
+            temp.append(a)
+        ret = ["and"]
         count =0
-        for item in f:
+        for item in temp:
             if count == 0:
                 count+=1
                 continue
