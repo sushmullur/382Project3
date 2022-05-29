@@ -12,6 +12,7 @@ def main():
     print_table(expression)
     a = expression
     print("CNF form is: ",CNFConverter(a))
+    temp =a
     a= CNFConverter(a)
     resoloution(a)
 
@@ -249,6 +250,10 @@ def CNFConverter(input):
     temp, ret = noNest(ret, "abc")
     ret = convertString(ret)
     return ret
+def CNFConverterNest(input):
+    ret = convertToCNF(input)
+    ret = distribute(ret)
+    return ret
 
 # Converts a given input to CNF
 def convertToCNF(input):
@@ -274,6 +279,7 @@ def convertToCNF(input):
         return ret
     return input
 
+#handles distributive laws for the CNF form(kinda ugly somtimes)
 def distribute(input):
     if input[0]=="(":
         input = input[1:-1]
@@ -295,28 +301,28 @@ def distribute(input):
         f = ['and']
         divClause=divClause[5:-1]
         divClause=helperSplitter(divClause)
+
         for item in divClause:
             a = input
             a[andLine] = item
             a=convertString(a)
             f.append(a)
-
-        output = ['and']
+        ret = ['and']
         count =0
         for item in f:
             if count == 0:
                 count+=1
                 continue
             #return distribute(item)
-            output.append(distribute(item))
+            ret.append(distribute(item))
             count+=1
 
-        return convertString(output)
+        return convertString(ret)
 
     else:
         # there is no "AND", can't move "OR" inside further
         return convertString(input)
-
+#gets rid of nested ors and ands
 def noNest(input, sign):
     input = helperSplitter(input[1:-1])
     if input[0] == "neg":
@@ -338,6 +344,7 @@ def noNest(input, sign):
     else:
         return False, input
 
+#helper for question 1
 def helper(input, distributed):
     ret =[]
     if input[0]=="(":
@@ -360,13 +367,15 @@ def helper(input, distributed):
 
 # --------------------------------------------------------------------------------------------------------------------
 # Question 3
+
+#helper for converting negation for quesiton 3(not used anymore)
 def convertNegRes(input):
     if input[0] == "neg":
         return input[1]
     if len(input[0]) == 1:
         return ["neg", input[0]]
 
-
+#negation for propositional statments
 def convertNegProp(input):
     if input[0]=="(":
         input = helperSplitter(input[1:-1])
@@ -436,6 +445,7 @@ def resoloution(input):
                 return
     print("can resolve")
     return
+#checks to clauses to see if they have similar items
 def helperCheck(input1, input2):
     ret =[]
     if input2[0]=="(":
@@ -451,11 +461,10 @@ def helperCheck(input1, input2):
     return ret
 
 
-
-
-
-
+#checks if anything in or statments cancels out
 def help_cancel(input):
+    if len(input)==1:
+        return input
     ret = helperSplitter(input[1:-1])
     temp = helperSplitter(input[1:-1])
     if temp[0]=="and":
@@ -469,8 +478,11 @@ def help_cancel(input):
             if negated ==i2:
                 if i2 in ret:
                     ret.remove(i2)
+                    hasChanged=True
                 if i in ret:
                     ret.remove(i)
+                    hasChanged=True
+                return None  ##BIG CHANGE
     if len(ret)==0:
         return None
     else:

@@ -17,18 +17,24 @@
 # 2- Convert to CNF
 
 # Test iff
-(iff (or a b) b)
+#(iff (or a b) b)
 #(and (or (neg b) a b) (or b (and (neg a) (neg b))))
 
 # Test implies
-# (implies p (neg q))
+#(implies p (neg q))
 
 # Test 4 variables
 #(or (and p q r) (and r q s))
 
-#
-# Assignment provided test cases
 
+#
+#3- Solve by Resoloution
+#(and a (neg a))
+#(or a (neg a))
+#(implies b (or a b))
+#(or (neg b) a b)
+
+# Assignment provided test cases
 # 1- Tautology checker expect valid and satisfiable
 # (implies (and p q r) (or p q r))
 # (iff (and p q r)  (and p r q))
