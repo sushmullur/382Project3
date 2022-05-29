@@ -157,6 +157,7 @@ def identify_variables(formula):
 # Outputs the truth table into a dictionary to create a 2d representation.
 def output_to_dict(input):
     input = list(input)
+    input.sort()
     ret = []
     curr = {}
     # Helper method for recursion.
@@ -277,6 +278,8 @@ def distribute(input):
     if input[0]=="(":
         input = input[1:-1]
     input = helperSplitter(input)
+    if input[0]=="and":
+        return convertString(input)
     andLine = -1
     count =0
     for item in input:
@@ -287,7 +290,6 @@ def distribute(input):
             andLine = count
             break
         count+=1
-
     if (andLine > 0):
         divClause = input[andLine]
         f = ['and']
@@ -305,6 +307,7 @@ def distribute(input):
             if count == 0:
                 count+=1
                 continue
+            #return distribute(item)
             output.append(distribute(item))
             count+=1
 
@@ -405,7 +408,7 @@ def resoloution(input):
     input =helperSplitter(input)
     if input[0]=="or":
         input = help_cancel(convertString(input))
-        if input=='':
+        if input==None:
             print ("can resolve")
             return
         print("can't resolve")
@@ -414,20 +417,23 @@ def resoloution(input):
     ret = input
     count =0
 
-
+    check =["a"]
     count =0
     for i in input:
-        if i[0]=="(":
-            check = helperSplitter(i[1:-1])
-            check = check[1:]
-        for i2 in input:
-            if i ==i2:
-                pass
-            else:
-               check =helperCheck(check, i2)
-        if check !=[]:
-            print("cant resolve")
-            return
+        i=help_cancel(i)
+        if i !=None:
+            if i[0]=="(":
+                check = helperSplitter(i[1:-1])
+                check = check[1:]
+
+            for i2 in input:
+                if i ==i2:
+                    pass
+                else:
+                   check =helperCheck(check, i2)
+            if check !=[]:
+                print("cant resolve")
+                return
     print("can resolve")
     return
 def helperCheck(input1, input2):
@@ -466,15 +472,13 @@ def help_cancel(input):
                 if i in ret:
                     ret.remove(i)
     if len(ret)==0:
-        return ""
-    return convertString(ret)
-    """
-    iCount =0
-    for i in temp:
-        for i2 in input:
-        iCount+=1
-   
-# def resolution(input):
+        return None
+    else:
+        return convertString(ret)
+    
+
+"""
+def help_cancel(input):
 
     input2 = convertNegProp(input)
     input2 = convertToCNF(input2)
@@ -485,7 +489,6 @@ def help_cancel(input):
     res =[]
     res2 =[]
     i =0
-    distributivity(input)
 
     while i < len(temp):
         if len(temp[i])==1:
@@ -519,12 +522,13 @@ def help_cancel(input):
                 break
 
     if len(terms)==0:
-        print("Resolution ended with all elements gone")
+        #print("Resolution ended with all elements gone")
         return None
     else:
-        print("terms still left after resolotion")
-        return "or"+terms
-        """
+        #print("terms still left after resolotion")
+        ret="or"+terms
+        return convertString(ret)
+"""
 def getVar(input):
     input = input.replace('(','').replace(')','')
     return input.split()

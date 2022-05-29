@@ -17,7 +17,8 @@
 # 2- Convert to CNF
 
 # Test iff
-(iff (and p q r)  (and p r q))
+(iff (or a b) b)
+#(and (or (neg b) a b) (or b (and (neg a) (neg b))))
 
 # Test implies
 # (implies p (neg q))
