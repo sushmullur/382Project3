@@ -33,9 +33,9 @@
 #(or a (neg a))
 #(implies b (or a b))
 #(or (neg b) a b)
-
+(and (or p q) (or (neg p) (neg q) ))
 # Assignment provided test cases
 # 1- Tautology checker expect valid and satisfiable
- (implies (and p q r) (or p q r))
+# (implies (and p q r) (or p q r))
 # (iff (and p q r)  (and p r q))
 # (implies (and p q r  (or s t)) (or (and  p q r s) (and p q r t)))
